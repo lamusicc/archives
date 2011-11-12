@@ -1,0 +1,162 @@
+#! /usr/bin/env bash
+
+# Fonction color, make sure your have color fonction in your PATH (/usr/local/bin)
+# http://code.google.com/p/ansi-color/
+# Read this page for the usage
+# usage : color_green "What the fuck" (after sourcing, or after the function)
+
+color_green()
+{
+    ARGS=1
+    E_MAUVAISARGS=69
+    if [ "$#" -ge "$ARGS" ]
+    then
+        if which color > /dev/null 2>&1 ; then
+            echo "$(color green black) --- $1 --- $(color)"
+        else
+            echo "--- $1 ----"
+        fi
+    else
+        echo "$(color red black) --- You must be use only one arg for color --- $(color)"
+        exit $E_MAUVAISARGS
+    fi
+}
+
+color_red()
+{
+    ARGS=1
+    E_MAUVAISARGS=69
+    if [ "$#" -ge "$ARGS" ]
+    then
+        if which color > /dev/null 2>&1 ; then
+            echo "$(color red black) --- $1 --- $(color)"
+        else
+            echo "--- $1 ---"
+        fi
+    else
+        echo "$(color red black) --- You must be use only one arg for color --- $(color)"
+        exit $E_MAUVAISARGS
+    fi
+}
+
+color_blue()
+{
+    ARGS=1
+    E_MAUVAISARGS=69
+    if [ "$#" -ge "$ARGS" ]
+    then
+        if which color > /dev/null 2>&1 ; then
+            echo "$(color blue black) --- $1 --- $(color)"
+        else
+            echo "--- $1 ---"
+        fi
+    else
+        echo "$(color red black) --- You must be use only one arg for color --- $(color)"
+        exit $E_MAUVAISARGS
+    fi
+}
+
+color_yellow()
+{
+    ARGS=1
+    E_MAUVAISARGS=69
+    if [ "$#" -ge "$ARGS" ]
+    then
+        if which color > /dev/null 2>&1 ; then
+            echo "$(color yellow black) --- $1 --- $(color)"
+        else
+            echo "--- $1 ---"
+        fi
+    else
+        echo "$(color red black) --- You must be use only one arg for color --- $(color)"
+        exit $E_MAUVAISARGS
+    fi
+}
+
+# Script for upgrade Gentoo system
+color_yellow "Update Portage Tree And Layman's Overlays"
+
+# Update layman
+layman_up()
+{
+    if which layman > /dev/null 2>&1 ; then
+        color_green "Update Layman's Overlays"
+        layman -S || color_red "Failed to Update Layman"
+        color_green "List Layman's Overlays"
+        layman -L || color_red "Failed to list Layman"
+    fi
+}
+
+# Update tree portage, eix db, portage and world
+eix_sync()
+{
+    if which eix-sync > /dev/null 2>&1 ; then
+        color_green "Update Portage Tree And Eix's Database"
+        eix-sync || color_red "Failed to Update portage or eix"
+    fi
+}
+
+emerge_portage()
+{
+    if which emerge > /dev/null 2>&1 ; then
+        color_green "Upgrade Portage"
+        emerge portage || color_red "Failed to Upgrade portage"
+    fi
+}
+
+fix_package()
+{
+    if which fixpackages > /dev/null 2>&1 ; then
+        color_green "Run fixpackages"
+        fixpackages || color_red "Failed to run fixpackages"
+    fi
+}
+
+emerge_world()
+{
+    if which emerge > /dev/null 2>&1 ; then
+        color_green "Update world"
+        emerge -avuDN world || color_red "Failed to Update world"
+    fi
+}
+
+# Fix lafile
+lafile_fixer()
+{
+    if which lafilefixer > /dev/null 2>&1 ; then
+        color_green "Run lafilefixer"
+        lafilefixer --justfixit || color_red "Failed to run lafilefixer"
+    fi
+}
+
+# revdep-rebuild
+revdep_rebuild()
+{
+    if which revdep-rebuild > /dev/null 2>&1 ; then
+        color_green "Run revdep-rebuild"
+        revdep-rebuild || color_red "Failed to run revdep-rebuild"
+    fi
+}
+
+# Menu for interactive update
+function_update="layman_up eix_sync emerge_portage fix_package emerge_world lafile_fixer revdep_rebuild"
+
+for i in $function_update ; do
+    color_blue "You are on update menu for your Gentoo system, enter yes or no for update $i"
+    read menu
+    case $menu in
+        yes|y|Yes|YES|Y)
+            color_green "You have choose YES for $i"
+            $i
+            ;;
+        no|n|No|NO|N)
+            color_green "You have choose NO for $i"
+            ;;
+        *)
+            color_red "You must be choose in YES or NO !!! (yes,no|Yes,No|YES,NO|Y,N|y,n syntax is accepted)"
+            ;;
+    esac
+done
+
+exit 0
+
