@@ -1,0 +1,105 @@
+#! /usr/bin/env ruby
+
+#PROJECT: pastethis
+#AUTHOR: Co2r <Co2r@orange.fr>
+#LICENSE: GPL
+#VERSION: 0.1
+
+require 'net/http'
+require 'uri'
+require 'cgi'
+
+
+#variables
+USAGE = "pastethis [option] [file]\npastethis -h or --help for show the help message."
+HELP = "Option is: -f format\nFormat accepted are :
+cpp,c,txt,java,javascript,ruby,bash,vb,python,php,perl,html4strict,csharp,css,delphi,fortran,tcl,xml,rails,mirc,asm\nExample: pastethis -f c++
+/home/me/sources.cpp"
+
+FORMAT =
+["cpp","c","text","java","javascript","ruby","bash","vb","python","php","perl","html4strict","csharp","css","delphi","fortran","tcl","xml","rails","mirc","asm"]
+
+
+#functions
+
+#is accepted langage ?
+def isAccepted()
+  compteur = 0
+  while compteur < 20
+    if LANGAGE  == FORMAT[compteur]
+      return true
+    end
+    compteur += 1
+  end
+  return false
+end
+
+#pasting...
+def paste(code)
+  url = URI.parse('http://pastebin.com/pastebin.php')
+  sock = Net::HTTP.new(url.host)
+  response = sock.request_post(url.path,"&format=#{LANGAGE}&code2=#{CGI::escape(code)}&poster=pastethis&paste=Send&expiry=m"
+  )
+  puts url.merge(response['location'])
+end
+
+
+#arguments management
+if ARGV.size == 0
+  puts USAGE
+  sleep(5)
+  exit
+end
+
+if ARGV.size == 1
+  if ARGV[0] == "-h" || ARGV[0] == "--help"
+    puts HELP
+    exit
+  elsif ARGV[0] == "-v" || ARGV[0] == "--version"
+    puts "pastethis v0.1"
+    exit
+  else
+    FILENAME = ARGV[0]
+    LANGAGE = "text"
+  end
+
+elsif ARGV.size == 3
+  if ARGV[0] == "-f"
+    LANGAGE = ARGV[1];
+    FILENAME = ARGV[2];
+  elsif ARGV[1] == "-f"
+    FILENAME = ARGV[0]
+    LANGAGE = ARGV[2]
+  else
+    puts USAGE
+    exit
+  end
+
+else
+  puts USAGE
+  exit
+end
+
+
+#langage is accepted ?
+if isAccepted() == false
+  puts "this langage (#{LANGAGE}) is not accepted."
+  exit
+end
+
+
+#the file is found ?
+if File.exist?(FILENAME) == false
+  puts "this file (#{FILENAME}) is not found."
+  exit
+end
+
+
+#pasting...
+begin
+  paste(File.new(FILENAME).gets(nil))
+rescue
+  puts "pastebin.com seems to be down, retry later."
+  exit
+end
+
