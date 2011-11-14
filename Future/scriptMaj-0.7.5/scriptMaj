@@ -82,7 +82,7 @@ color_magenta()
         if which color > /dev/null 2>&1 ; then
             echo "$(color magenta) --- $1 --- $(color)"
         else
-            echo "--- $1 ----"
+            echo "--- $1 ---"
         fi
     else
         echo "$(color red) --- You must be use only one arg for color --- $(color)"
