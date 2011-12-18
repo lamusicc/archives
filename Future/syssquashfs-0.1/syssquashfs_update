@@ -39,20 +39,20 @@ read upsquashfs
 case $upsquashfs in
     y|Y|yes|Yes)
         color_green "You are running mksquashfs on $SYSTEM."
-        #if mksquashfs /$SYSTEM $SPATH/$SYSTEM_tmp.sqf -b $BLOCK $COMPRESSION ; then
-        color_green "Squashfs image update are ready to use."
-    else
-        color_red "Error have finished the process incorectly."
-    fi
-    ;;
-n|N|no|No)
-    color_magenta "You have type No, you quit."
-    exit 1
-    ;;
-*)
-    color_red "Please type y|Y|yes|Yes or n|N|no|No."
-    exit 1
-    ;;
+        if mksquashfs /$SYSTEM $SPATH/$SYSTEM_tmp.sqf -b $BLOCK $COMPRESSION ; then
+            color_green "Squashfs image update are ready to use."
+        else
+            color_red "Error have finished the process incorectly."
+        fi
+        ;;
+    n|N|no|No)
+        color_magenta "You have type No, you quit."
+        exit 1
+        ;;
+    *)
+        color_red "Please type y|Y|yes|Yes or n|N|no|No."
+        exit 1
+        ;;
 esac
 
 
@@ -64,13 +64,17 @@ case $mount_del in
     y|Y|yes|Yes)
         color_green "Force the umount the /$SYSTEM directory. If doesn't work, stop X."
         color_green "And delete old file, and place the new squashfs image."
-        #umount -l /$SYSTEM && umount -l $SPATH/ro && rm -rf $SPATH/$SYSTEM.sqf && mv $SPATH/$SYSTEM_temp.sqf $SPATH/$SYSTEM.sqf && rm -rf $SPATH/rw/*
+        if umount -l /$SYSTEM && umount -l $SPATH/ro && rm -rf $SPATH/$SYSTEM.sqf && mv $SPATH/$SYSTEM_temp.sqf $SPATH/$SYSTEM.sqf && rm -rf $SPATH/rw/* ; then
+            color_green "All finish correctly."
+        else
+            color_red "One error appear."
+        fi
         ;;
     n|N|no|No)
         color_magenta "You have type No, you quit."
         exit 1
         ;;
-    *)~
+    *)
         color_red "Please type y|Y|yes|Yes or n|N|no|No."
         exit 1
         ;;
@@ -83,7 +87,11 @@ read remount
 case $remount in
     y|Y|yes|Yes)
         color_green "Remount the /$SYSTEM directory."
-        #mount $SPATH/ro && mount /$SYSTEM
+        if mount $SPATH/ro && mount /$SYSTEM ; then
+            color_green "All mount finish correctly."
+        else
+            color_red "One error appear."
+        fi
         ;;
     n|N|no|No)
         color_magenta "You have type No, you quit."
