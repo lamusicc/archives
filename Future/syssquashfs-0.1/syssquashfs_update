@@ -64,7 +64,7 @@ case $mount_del in
     y|Y|yes|Yes)
         color_green "Force the umount the /$SYSTEM directory. If doesn't work, stop X."
         color_green "And delete old file, and place the new squashfs image."
-        if umount -l /$SYSTEM && umount -l $SPATH/ro && rm -rf $SPATH/$SYSTEM.sqf && mv $SPATH/$SYSTEM_temp.sqf $SPATH/$SYSTEM.sqf && rm -rf $SPATH/rw/* ; then
+        if umount -l /$SYSTEM && umount -l $SPATH/ro && rm -rf $SPATH/$SYSTEM.sqf && mv $SPATH/$SYSTEM_tmp.sqf $SPATH/$SYSTEM.sqf && rm -rf $SPATH/rw/* ; then
             color_green "All finish correctly."
         else
             color_red "One error appear."
