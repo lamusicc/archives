@@ -79,7 +79,7 @@ case $mksquashfs in
         ;;
 esac
 
-update_fstab ()
+update_fstab()
 {
     echo "" >> /etc/fstab
     echo "# Add by squashfs script suite." >> /etc/fstab
