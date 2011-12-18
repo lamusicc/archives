@@ -1,0 +1,162 @@
+#! /usr/bin/env bash
+
+if [ -f /usr/lib/colors_bash_lib ] ; then
+    source /usr/lib/colors_bash_lib
+else
+    echo "You have a setup problem with color lib, run with debug mode -x to see what happen."
+fi
+
+# Script for upgrade Gentoo system
+color_yellow "Update Portage Tree And Layman's Overlays."
+
+# Update layman
+layman_up()
+{
+    if which layman > /dev/null 2>&1 ; then
+        color_green "Update Layman's Overlays."
+        layman -S || color_red "Failed to Update Layman."
+        color_green "List Layman's Overlays."
+        layman -L || color_red "Failed to list Layman."
+    fi
+}
+
+# Update tree portage, eix db, portage and world
+eix_sync()
+{
+    if which eix-sync > /dev/null 2>&1 ; then
+        color_green "Update Portage Tree And Eix's Database."
+        eix-sync || color_red "Failed to Update portage or eix."
+    fi
+    if eix -ecI portage|grep "\[U\]" > /dev/null 2>&1 ; then
+        if which emerge > /dev/null 2>&1 ; then
+            color_green "Upgrade Portage."
+            emerge portage || color_red "Failed to Upgrade portage."
+        fi
+
+        if which fixpackages > /dev/null 2>&1 ; then
+            color_green "Run fixpackages."
+            fixpackages || color_red "Failed to run fixpackages."
+        fi
+    else
+        color_yellow "Portage is UP to date."
+    fi
+}
+
+emerge_world()
+{
+    if which emerge > /dev/null 2>&1 ; then
+        color_green "Update world."
+        emerge -avuDN world || color_red "Failed to Update world."
+    fi
+}
+
+# Fix lafile
+lafile_fixer()
+{
+    if which lafilefixer > /dev/null 2>&1 ; then
+        color_green "Run lafilefixer."
+        lafilefixer --justfixit || color_red "Failed to run lafilefixer."
+    fi
+}
+
+# revdep-rebuild
+revdep_rebuild()
+{
+    if which revdep-rebuild > /dev/null 2>&1 ; then
+        color_green "Run revdep-rebuild."
+        revdep-rebuild || color_red "Failed to run revdep-rebuild."
+    fi
+}
+
+emerge_depclean()
+{
+    if which emerge > /dev/null >&1 ; then
+        color_green "Run depclean."
+        emerge -a --depclean || color_red "Failed to run depclean."
+    fi
+}
+
+# cpufrequtils detection
+cpufrequtils_stop()
+{
+    if [ -x /etc/init.d/cpufrequtils ] ; then
+        color_green "Stop your cpufrequtils init script."
+        /etc/init.d/cpufrequtils stop || color_red "Failed to stop cpufrequtils."
+    else
+        color_red "You don't have /etc/init.d/cpufrequtils init script as executable file."
+    fi
+}
+
+# cpufrequtils detection
+cpufrequtils_start()
+{
+    if [ -x /etc/init.d/cpufrequtils ] ; then
+        color_green "Stop your cpufrequtils init script."
+        /etc/init.d/cpufrequtils start || color_red "Failed to start cpufrequtils."
+    else
+        color_red "You don't have /etc/init.d/cpufrequtils init script as executable file."
+    fi
+}
+
+# cpufrequtils stop
+if [ -f /etc/init.d/cpufrequtils ] ; then
+    color_blue "Enter yes or no for run cpufrequtils_stop."
+    read cpu_stop
+    case $cpu_stop in
+        yes|y|Yes|YES|Y)
+            color_green "You have choose YES for cpufrequtils_stop."
+            cpufrequtils_stop
+            ;;
+        no|n|No|NO|N)
+            color_magenta "You have choose NO for cpufrequtils_stop."
+            ;;
+        *)
+            color_red "You must be choose in YES or NO !!! (yes,no|Yes,No|YES,NO|Y,N|y,n syntax is accepted)."
+            ;;
+    esac
+else
+    color_magenta "You don't have /etc/init.d/cpufrequtils init script."
+fi
+
+# Menu for interactive update
+function_update="layman_up eix_sync emerge_world lafile_fixer revdep_rebuild emerge_depclean"
+
+for i in $function_update ; do
+    color_blue "Enter yes or no for run $i."
+    read menu
+    case $menu in
+        yes|y|Yes|YES|Y)
+            color_green "You have choose YES for $i."
+            $i
+            ;;
+        no|n|No|NO|N)
+            color_magenta "You have choose NO for $i."
+            ;;
+        *)
+            color_red "You must be choose in YES or NO !!! (yes,no|Yes,No|YES,NO|Y,N|y,n syntax is accepted)."
+            ;;
+    esac
+done
+
+# cpufrequtils restart
+if [ -f /etc/init.d/cpufrequtils ] ; then
+    color_blue "Enter yes or no for run cpufrequtils_start."
+    read cpu_stop
+    case $cpu_stop in
+        yes|y|Yes|YES|Y)
+            color_green "You have choose YES for cpufrequtils_start."
+            cpufrequtils_start
+            ;;
+        no|n|No|NO|N)
+            color_magenta "You have choose NO for cpufrequtils_start."
+            ;;
+        *)~
+            color_red "You must be choose in YES or NO !!! (yes,no|Yes,No|YES,NO|Y,N|y,n syntax is accepted)."
+            ;;
+    esac
+else
+    color_magenta "You don't have /etc/init.d/cpufrequtils init script."
+fi
+
+exit 0
+
