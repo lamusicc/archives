@@ -7,7 +7,7 @@ else
     echo "You have a setup problem with color lib, run with debug mode -x to see what happen."
 fi
 
-if [ -f /etc/conf.d/squashfs_system ] ; then
+if [ -f /etc/conf.d/syssquashfsd ] ; then
     source /etc/conf.d/squashfs_system
 else
     echo "You have a setup problem with /etc/conf.d/squashfs_system, run with debug mode -x to see what happen."
