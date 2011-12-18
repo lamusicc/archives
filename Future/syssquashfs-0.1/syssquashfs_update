@@ -8,7 +8,7 @@ else
 fi
 
 if [ -f /etc/conf.d/syssquashfsd ] ; then
-    source /etc/conf.d/squashfs_system
+    source /etc/conf.d/syssquashfsd
 else
     echo "You have a setup problem with /etc/conf.d/squashfs_system, run with debug mode -x to see what happen."
 fi
