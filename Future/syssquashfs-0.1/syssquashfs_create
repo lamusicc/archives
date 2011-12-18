@@ -1,0 +1,121 @@
+#! /usr/bin/env bash
+
+# Use color
+if [ -f /usr/lib/colors_bash_lib ] ; then
+    source /usr/lib/colors_bash_lib
+else
+    echo "You have a setup problem with color lib, run with debug mode -x to see what happen."
+fi
+
+if [ -f /etc/conf.d/squashfs_system ] ; then
+    source /etc/conf.d/squashfs_system
+else
+    echo "You have a setup problem with /etc/conf.d/squashfs_system, run with debug mode -x to see what happen."
+fi
+
+# Script auto create for you a sqf image of your partition filesystem (/usr, /lib64, /opt, etc..).
+# If you do not you know, don't run this script !!!
+ARGS=1
+E_MAUVAISARGS=69
+if [ "$#" -ge "$ARGS" ]
+then
+    SYSTEM="$1"
+    SPATH="$SLASH/$SYSTEM"
+
+else
+    color_red "You must be use one arg for your directory squashfs (Example : usr, opt, lib64)."
+    exit $E_MAUVAISARGS
+fi
+
+# Create the location for the new squashfs image.
+color_yellow "You are on mkdir menu."
+color_blue "Create $SPATH $SPATH/ro $SPATH/rw dir for new squashfs image."
+
+read mkmenu
+case $mkmenu in
+    y|Y|yes|Yes)
+        if ls  -ld $SPATH $SPATH/ro $SPATH/rw > /dev/null 2>&1 ; then
+            color_magenta "Directories all ready exist."
+        else
+            color_green "You are creating dir."
+            mkdir -p $SPATH $SPATH/ro $SPATH/rw
+        fi
+        ;;
+    n|N|no|No)
+        color_magenta "You have type No, you quit."
+        exit 1
+        ;;
+    *) 
+        color_red "Please type y|Y|yes|Yes or n|N|no|No."
+        exit 1
+        ;;
+esac
+
+# Squashfs options.
+COMPRESSION="lzo"
+BLOCK="65536"
+
+# Create a squashfs image with your dir choice.
+color_yellow "You are on squashfs menu script."
+color_blue "Choose yes or no for make /$SYSTEM in squashfs."
+
+read mksquashfs
+case $mksquashfs in
+    y|Y|yes|Yes)
+        color_green "You are running mksquashfs on $SYSTEM."
+        if mksquashfs /$SYSTEM $SPATH/$SYSTEM.sqf -b $BLOCK -comp $COMPRESSION ; then
+            color_green "Squashfs image are ready to use."
+        else
+            color_red "Error have finished the process incorectly."
+        fi
+        ;;
+    n|N|no|No)
+        color_magenta "You have type No, you quit."
+        exit 1
+        ;;
+    *)
+        color_red "Please type y|Y|yes|Yes or n|N|no|No."
+        exit 1
+        ;;
+esac
+
+update_fstab ()
+{
+    echo "" >> /etc/fstab
+    echo "# Add by squashfs script suite." >> /etc/fstab
+    echo "$1" >> /etc/fstab
+    if grep -q "$1" /etc/fstab ; then
+        color_green "Update your /etc/fstab is OK, but verify with vim please."
+    else
+        color_red "ALERT Your /etc/fstab is not UP TO DATE."
+    fi
+}
+
+# Add this line in /etc/fstab
+# Put your /etc/fstab line here.
+SQF="$SPATH/$SYSTEM.sqf      $SPATH/ro    squashfs    loop,ro     0 0"
+AUFS="$SYSTEM   /$SYSTEM    aufs   udba=reval,br:$SPATH/rw=rw:$SPATH/ro=ro  0 0"
+
+# Writing line in /etc/fstab for boot on new squashfs image.
+color_yellow "You are on squashfs menu script."
+color_blue "Choose yes or no for update your /etc/fstab with good line."
+
+read fstab
+case $fstab in
+    y|Y|yes|Yes)
+        color_green "You are writing /etc/fstab."
+        update_fstab "$SQF"
+        update_fstab "$AUFS"
+        ;;
+    n|N|no|No)
+        color_magenta "You have type No, exit."
+        exit 1
+        ;;
+    *)
+        color_red "Please type y|Y|yes|Yes or n|N|no|No."
+        exit 1
+        ;;
+esac
+
+exit 0
+

@@ -1,0 +1,99 @@
+#! /usr/bin/env bash
+
+# Use color
+if [ -f /usr/lib/colors_bash_lib ] ; then
+    source /usr/lib/colors_bash_lib
+else
+    echo "You have a setup problem with color lib, run with debug mode -x to see what happen."
+fi
+
+if [ -f /etc/conf.d/squashfs_system ] ; then
+    source /etc/conf.d/squashfs_system
+else
+    echo "You have a setup problem with /etc/conf.d/squashfs_system, run with debug mode -x to see what happen."
+fi
+
+# Script auto create for you a sqf image of your partition filesystem (/usr, /lib64, /opt, etc..).
+# If you do not you know, don't run this script !!!
+ARGS=1
+E_MAUVAISARGS=69
+if [ "$#" -ge "$ARGS" ]
+then
+    SYSTEM="$1"
+    SPATH="$SLASH/$SYSTEM"
+
+else
+    color_red "You must be use one arg for your directory squashfs (Example : usr, opt, lib64)."
+    exit $E_MAUVAISARGS
+fi
+
+# Squashfs options.
+COMPRESSION="lzo"
+BLOCK="65536"
+
+# Create a squashfs image with your dir choice.
+color_yellow "You are on squashfs menu script."
+color_blue "Choose yes or no for make an upgrade to /$SYSTEM in squashfs."
+
+read upsquashfs
+case $upsquashfs in
+    y|Y|yes|Yes)
+        color_green "You are running mksquashfs on $SYSTEM."
+        #if mksquashfs /$SYSTEM $SPATH/$SYSTEM_tmp.sqf -b $BLOCK $COMPRESSION ; then
+        color_green "Squashfs image update are ready to use."
+    else
+        color_red "Error have finished the process incorectly."
+    fi
+    ;;
+n|N|no|No)
+    color_magenta "You have type No, you quit."
+    exit 1
+    ;;
+*)
+    color_red "Please type y|Y|yes|Yes or n|N|no|No."
+    exit 1
+    ;;
+esac
+
+
+color_yellow "You are on squashfs menu script."
+color_blue "Choose yes or no to for umount /$SYSTEM, delete old squashfs image and place the new."
+
+read mount_del
+case $mount_del in
+    y|Y|yes|Yes)
+        color_green "Force the umount the /$SYSTEM directory. If doesn't work, stop X."
+        color_green "And delete old file, and place the new squashfs image."
+        #umount -l /$SYSTEM && umount -l $SPATH/ro && rm -rf $SPATH/$SYSTEM.sqf && mv $SPATH/$SYSTEM_temp.sqf $SPATH/$SYSTEM.sqf && rm -rf $SPATH/rw/*
+        ;;
+    n|N|no|No)
+        color_magenta "You have type No, you quit."
+        exit 1
+        ;;
+    *)~
+        color_red "Please type y|Y|yes|Yes or n|N|no|No."
+        exit 1
+        ;;
+esac
+
+color_yellow "You are on squashfs menu script."
+color_blue "Choose yes or no to for mount /$SYSTEM with the new squashfs image."
+
+read remount
+case $remount in
+    y|Y|yes|Yes)
+        color_green "Remount the /$SYSTEM directory."
+        #mount $SPATH/ro && mount /$SYSTEM
+        ;;
+    n|N|no|No)
+        color_magenta "You have type No, you quit."
+        exit 1
+        ;;
+    *)
+        color_red "Please type y|Y|yes|Yes or n|N|no|No."
+        exit 1
+        ;;
+esac
+
+exit 0
+

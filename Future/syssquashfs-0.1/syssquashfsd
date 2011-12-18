@@ -1,0 +1,5 @@
+# /etc/conf.d/syssquashfs: config file for udev
+
+# Location for squashfs image of your system partition.
+# Default is /home/Chroot/squashfs. (for /usr, /lib64, /opt etc..).
+SLASH="/home/Chroot/squashfs"
