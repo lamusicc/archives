@@ -10,7 +10,7 @@ fi
 if [ -f /etc/conf.d/syssquashfsd ] ; then
     source /etc/conf.d/syssquashfsd
 else
-    echo "You have a setup problem with /etc/conf.d/squashfs_system, run with debug mode -x to see what happen."
+    echo "You have a setup problem with /etc/conf.d/syssquashfsd, run with debug mode -x to see what happen."
 fi
 
 # Script auto create for you a sqf image of your partition filesystem (/usr, /lib64, /opt, etc..).
