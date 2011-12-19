@@ -1,8 +1,8 @@
 #! /usr/bin/env bash
 
 # Use color
-if [ -f /usr/lib/colors_bash_lib ] ; then
-    source /usr/lib/colors_bash_lib
+if [ -f /usr/lib/libBashColors ] ; then
+    source /usr/lib/libBashColors
 else
     echo "You have a setup problem with color lib, run with debug mode -x to see what happen."
 fi
