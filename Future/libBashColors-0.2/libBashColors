@@ -1,0 +1,34 @@
+#! /usr/bin/env bash
+
+# Fonction color, make sure your have color fonction in your PATH (/usr/local/bin)
+# http://code.google.com/p/ansi-color/
+# Read this page for the usage
+# Usage : color_green "What the fuck" (after sourcing, or after the function)
+
+LS_COLOR="red green yellow blue magenta cyan white"
+
+for i in $LS_COLOR
+do
+source /dev/stdin <<EOF
+    #export ls_color=$(printf %q "$i")
+    #color_${ls_color}()
+    color_${i}()
+    {
+        ARGS=1
+        E_MAUVAISARGS=69
+        if [ "$#" -ge "$ARGS" ]
+        then
+            if which color > /dev/null 2>&1 ; then
+                echo "$(color $i) --- $1 --- $(color)"
+            else
+                echo "--- $1 ---"
+            fi
+        else
+            echo "$(color red) --- You must be use only one arg for color --- $(color)"
+            exit $E_MAUVAISARGS
+        fi
+    };
+EOF
+
+done
+

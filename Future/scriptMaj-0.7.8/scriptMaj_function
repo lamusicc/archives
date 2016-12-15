@@ -1,0 +1,84 @@
+#! /usr/bin/env bash
+
+# Update layman
+layman_up()
+{
+    if which layman > /dev/null 2>&1 ; then
+        color_green "Update Layman's Overlays."
+        layman -S || color_red "Failed to Update Layman."
+        color_green "List Layman's Overlays."
+        layman -L || color_red "Failed to list Layman."
+    fi
+}
+
+# Update tree portage, eix db, portage and world
+eix_sync()
+{
+    if which eix-sync > /dev/null 2>&1 ; then
+        color_green "Update Portage Tree And Eix's Database."
+        eix-sync || color_red "Failed to Update portage or eix."
+    fi
+
+    if eix -ecI portage|grep "\[U\]" > /dev/null 2>&1 ; then
+        if which emerge > /dev/null 2>&1 ; then
+            color_green "Upgrade Portage."
+            emerge portage || color_red "Failed to Upgrade portage."
+        fi
+
+        if which fixpackages > /dev/null 2>&1 ; then
+            color_green "Run fixpackages."
+            fixpackages || color_red "Failed to run fixpackages."
+        fi
+    else
+        color_yellow "Portage is UP to date."
+    fi
+}
+
+# emerge world
+emerge_world()
+{
+    if which emerge > /dev/null 2>&1 ; then
+        color_green "Update world."
+        emerge -avuDN world || color_red "Failed to Update world."
+    fi
+}
+
+# revdep-rebuild
+revdep_rebuild()
+{
+    if which revdep-rebuild > /dev/null 2>&1 ; then
+        color_green "Run revdep-rebuild."
+        revdep-rebuild || color_red "Failed to run revdep-rebuild."
+    fi
+}
+
+emerge_depclean()
+{
+    if which emerge > /dev/null >&1 ; then
+        color_green "Run depclean."
+        emerge -a --depclean || color_red "Failed to run depclean."
+    fi
+}
+
+# cpupower detection
+cpupower_stop()
+{
+    if [ -x /etc/init.d/cpupower ] ; then
+        color_green "Stop your cpupower init script."
+        /etc/init.d/cpupower stop || color_red "Failed to stop cpupower."
+    else
+        color_red "You don't have /etc/init.d/cpupower init script as executable file."
+    fi
+}
+
+# cpupower detection
+cpupower_start()
+{
+    if [ -x /etc/init.d/cpupower ] ; then
+        color_green "Start your cpupower init script."
+        /etc/init.d/cpupower start || color_red "Failed to start cpupower."
+    else
+        color_red "You don't have /etc/init.d/cpupower init script as executable file."
+    fi
+}
+
