@@ -1,0 +1,79 @@
+#! /usr/bin/env bash
+
+if [ -f /usr/lib64/libBashColors ] ; then
+    source /usr/lib64/libBashColors
+else
+    echo "You have a setup problem with color lib, run with debug mode -x to see what happen."
+fi
+
+if [ -f /usr/lib64/scriptMaj_function ] ; then
+    source /usr/lib64/scriptMaj_function
+else
+    echo "You have a setup problem with scriptMaj_function, run with debug mode -x to see what happen."
+fi
+
+# Script for upgrade Gentoo system
+color_yellow "Update Portage Tree And Layman's Overlays."
+
+# cpupower stop
+if [ -f /etc/init.d/cpupower ] ; then
+    color_blue "Enter yes or no for run cpupower_stop."
+    read cpu_stop
+    case $cpu_stop in
+        yes|y|Yes|YES|Y)
+            color_green "You have choose YES for cpupower_stop."
+            cpupower_stop
+            ;;
+        no|n|No|NO|N)
+            color_magenta "You have choose NO for cpupower_stop."
+            ;;
+        *)
+            color_red "You must be choose in YES or NO !!! (yes,no|Yes,No|YES,NO|Y,N|y,n syntax is accepted)."
+            ;;
+    esac
+else
+    color_magenta "You don't have /etc/init.d/cpupower init script."
+fi
+
+# Menu for interactive update
+function_update="layman_up eix_sync emerge_world revdep_rebuild emerge_depclean"
+
+for i in $function_update ; do
+    color_blue "Enter yes or no for run $i."
+    read menu
+    case $menu in
+        yes|y|Yes|YES|Y)
+            color_green "You have choose YES for $i."
+            $i
+            ;;
+        no|n|No|NO|N)
+            color_magenta "You have choose NO for $i."
+            ;;
+        *)
+            color_red "You must be choose in YES or NO !!! (yes,no|Yes,No|YES,NO|Y,N|y,n syntax is accepted)."
+            ;;
+    esac
+done
+
+# cpupower restart
+if [ -f /etc/init.d/cpupower ] ; then
+    color_blue "Enter yes or no for run cpupower_start."
+    read cpu_stop
+    case $cpu_stop in
+        yes|y|Yes|YES|Y)
+            color_green "You have choose YES for cpupower_start."
+            cpupower_start
+            ;;
+        no|n|No|NO|N)
+            color_magenta "You have choose NO for cpupower_start."
+            ;;
+        *)~
+            color_red "You must be choose in YES or NO !!! (yes,no|Yes,No|YES,NO|Y,N|y,n syntax is accepted)."
+            ;;
+    esac
+else
+    color_magenta "You don't have /etc/init.d/cpupower init script."
+fi
+
+exit 0
+
